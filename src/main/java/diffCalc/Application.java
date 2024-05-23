@@ -12,8 +12,10 @@ public class Application {
         int N = 20; //в джаве ультра неудобное считывание с консоли, поэтому N изменяется тут
         var shooting = new Shooting(N, 0, 1);
         var running = new Running(N, 0,1);
+        var solution = new Solution(N,0,1);
         var field = new XYSeriesCollection(shooting.getSeries());
         field.addSeries(running.getSeries());
+        field.addSeries(solution.getSeries());
         var chart =
                 ChartFactory.
                         createXYLineChart

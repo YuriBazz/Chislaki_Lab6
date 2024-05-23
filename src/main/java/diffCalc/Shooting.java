@@ -5,14 +5,14 @@ import org.jfree.data.xy.XYSeries;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Shooting {
+public class Shooting implements IGetSeries{
     private static final double epsilon = 0.5 * Math.pow(10,-3);
     private final double alpha, h,a,b;
     private final int N;
     public Shooting(int N, double a, double b){
         this.alpha = 2 + 0.1 * N;
         this.a = a; this.b = b;
-        this.h = (b - a) / N ;
+        this.h = (this.b - a) / N ;
         this.N = N;
     }
     private double f(double x, double y){

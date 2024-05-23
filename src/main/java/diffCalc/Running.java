@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Running {
+public class Running implements IGetSeries {
     private final double a,b, alpha, h;
     private final int N;
 
@@ -21,23 +21,36 @@ public class Running {
 
 
     public XYSeries getSeries(){
-        ArrayList<Double> v = new ArrayList<>(), u = new ArrayList<>();
-        double y = Math.E + 1 / Math.E - 2, x = a;
-        for(int i = 0; i < N + 1; i++){
-            if(i == 0) {v.add(1/(2 + h * h)); u.add(q(x)*h*h); continue;}
-            if(i == N) {v.add(0.0); u.add((u.getLast() - q(x)*h*h) / (2 + h* h -v.get(v.size() - 2))); continue;}
-            u.add((u.getLast() - q(x)*h*h) / (2 + h* h + v.getLast()));
-            v.add(1 / (2 + h*h -v.getLast()));
+        double[] up = new double[N-1], main = new double[N-1], down = new double[N-1], left = new double[N-1];
+        double x = a + h;
+        for(int i = 0; i < N - 1 ; i++){
+            if(i == N - 2) up[i] = 0; else up[i] = 1;
+            main[i] = -(2 + h * h);
+            if(i == 0) down[i] = 0; else down[i] = 1;
+            left[i] = (q(x) * h * h);
             x+=h;
         }
-        XYSeries result = new XYSeries("Метод прогонки", false);
-        for(int i = N; i >-h; i-=h){
-            result.add(x, y);
-            if(i == 0) break;
-            y = v.getLast() * y + u.getLast();
-            v.removeLast(); u.removeLast();
-            x-=h;
+        double[] solution = new double[N-1];
+        double m;
+        for(int i = 1; i < N - 1; i++){
+            m = down[i] / main[i-1];
+            main[i] -= m * up[i-1];
+            left[i] -= m * left[i-1];
         }
+
+        solution[N-2] = left[N-2] / main[N-2];
+        for(int i = N- 3; i > -1; i--){
+            solution[i] = (left[i] -up[i] * solution[i+1])/ main[i];
+        }
+        XYSeries result = new XYSeries("Метод прогонки", false);
+        x = a;
+        result.add(x, 0);
+        x+=h;
+        for(int i = 0; i < N - 1; i++){
+            result.add(x, solution[i]);
+            x+=h;
+        }
+        result.add(x, Math.E + 1/Math.E - 2);
         return result;
     }
 
